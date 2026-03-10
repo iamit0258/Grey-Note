@@ -244,3 +244,15 @@ h1 {
     text-decoration: underline;
     cursor: pointer;
 }
+/* Responsive Adjustments */
+@media (max-width: 640px) {
+    h1 {
+        font-size: 2rem;
+    }
+    .subtitle {
+        font-size: 1rem;
+    }
+    .landing-container {
+        padding: 1rem;
+    }
+}

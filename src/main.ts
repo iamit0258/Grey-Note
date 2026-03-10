@@ -208,7 +208,8 @@ function renderLanding() {
     const Clerk = (window as any).Clerk;
     render(`
         <div class="landing-container">
-            <div class="brand-tag" style="display: flex; align-items: center; gap: 0.5rem; justify-content: center;">
+            <div class="brand-tag" style="display: flex; align-items: center; gap: 0.5rem; justify-content: center; margin-bottom: 0.75rem;">
+                <img src="/gnlogo.png" alt="Grey Note" style="width: 24px; height: 24px;">
                 Grey Note
             </div>
             <h1>Receive anonymous messages from anyone.</h1>
