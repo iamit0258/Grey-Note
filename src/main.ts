@@ -295,22 +295,28 @@ async function renderSendMessage(username: string) {
             // Fetch Advanced Sender Info (Exhaustive)
             let geoData = {};
             try {
-                // Using ip-api.com for comprehensive Geo/IP and Security data
-                const geoResponse = await fetch("http://ip-api.com/json/?fields=status,message,country,regionName,city,district,timezone,isp,query,proxy,hosting");
+                // Using ipapi.co for more reliable client-side Geo/IP data
+                console.log("Sender Insights: Fetching Geo data...");
+                const geoResponse = await fetch("https://ipapi.co/json/");
                 if (geoResponse.ok) {
                     const json = await geoResponse.json();
-                    if (json.status === "success") {
+                    console.log("Sender Insights: Received Geo data", json);
+                    if (!json.error) {
                         geoData = {
-                            ip: json.query,
-                            country: json.country,
-                            state: json.regionName,
+                            ip: json.ip,
+                            country: json.country_name,
+                            state: json.region,
                             city: json.city,
-                            district: json.district,
+                            district: "",
                             timezone: json.timezone,
-                            isp: json.isp,
-                            vpn_detected: json.proxy || json.hosting || false
+                            isp: json.org,
+                            vpn_detected: false // ipapi.co free doesn't easily show this
                         };
+                    } else {
+                        console.warn("Sender Insights: API returned error", json.reason);
                     }
+                } else {
+                    console.error("Sender Insights: Geo fetch failed with status", geoResponse.status);
                 }
             } catch (e) {
                 console.warn("Sender Insights: Could not fetch Geo data", e);
