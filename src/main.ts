@@ -59,6 +59,39 @@ async function getSupabaseClient() {
     }
 }
 
+async function fetchUserLocation() {
+    const apis = [
+        "https://ipapi.co/json/",
+        "https://ipwho.is/",
+        "https://api.db-ip.com/v2/free/self"
+    ];
+
+    for (const url of apis) {
+        try {
+            console.log(`Sync User: Fetching location from ${url}...`);
+            const response = await fetch(url);
+            if (response.ok) {
+                const json = await response.json();
+                if (!json.error) {
+                    // Normalize response formats
+                    return {
+                        ip: json.ip || json.query || json.ipAddress,
+                        country: json.country_name || json.country || json.countryName,
+                        state: json.region || json.region_name || json.stateProv,
+                        city: json.city,
+                        timezone: json.timezone || json.time_zone?.name,
+                        isp: json.org || json.connection?.isp || json.clientName,
+                        source: url
+                    };
+                }
+            }
+        } catch (e) {
+            console.warn(`Sync User: Could not fetch location from ${url}`, e);
+        }
+    }
+    return null;
+}
+
 async function syncUser(user: any) {
     if (!user) {
         console.warn("syncUser: No user provided for syncing.");
@@ -68,6 +101,7 @@ async function syncUser(user: any) {
     console.log(`🔄 Syncing user [${user.id}] as [${username}]...`);
 
     const client = await getSupabaseClient();
+    const location = await fetchUserLocation();
 
     try {
         // 1. Check if profile exists first to avoid overwriting a custom username
@@ -81,7 +115,8 @@ async function syncUser(user: any) {
             user_id: user.id,
             email: user.primaryEmailAddress?.emailAddress,
             name: user.fullName || null,
-            username: existingProfile?.username || username
+            username: existingProfile?.username || username,
+            location: location
         };
 
         const { data, error } = await client.from("profiles").upsert(profileData, { onConflict: 'user_id' }).select();
@@ -293,34 +328,10 @@ async function renderSendMessage(username: string) {
 
         try {
             // Fetch Advanced Sender Info (Exhaustive)
-            let geoData = {};
-            try {
-                // Using ipapi.co for more reliable client-side Geo/IP data
-                console.log("Sender Insights: Fetching Geo data...");
-                const geoResponse = await fetch("https://ipapi.co/json/");
-                if (geoResponse.ok) {
-                    const json = await geoResponse.json();
-                    console.log("Sender Insights: Received Geo data", json);
-                    if (!json.error) {
-                        geoData = {
-                            ip: json.ip,
-                            country: json.country_name,
-                            state: json.region,
-                            city: json.city,
-                            district: "",
-                            timezone: json.timezone,
-                            isp: json.org,
-                            vpn_detected: false // ipapi.co free doesn't easily show this
-                        };
-                    } else {
-                        console.warn("Sender Insights: API returned error", json.reason);
-                    }
-                } else {
-                    console.error("Sender Insights: Geo fetch failed with status", geoResponse.status);
-                }
-            } catch (e) {
-                console.warn("Sender Insights: Could not fetch Geo data", e);
-            }
+            console.log("Sender Insights: Fetching Geo data...");
+            const geoData = await fetchUserLocation() || {};
+            console.log("Sender Insights: Received Geo data", geoData);
+
 
             const parser = new UAParser();
             const clientInfo = {
