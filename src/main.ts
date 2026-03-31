@@ -300,8 +300,11 @@ async function renderSendMessage(username: string) {
                 <div style="text-align: right; font-size: 0.75rem; color: var(--muted-foreground); margin-top: 0.5rem;">Max 500 characters</div>
             </div>
             
-            <div style="display: flex; justify-content: center;">
+            <div style="display: flex; flex-direction: column; align-items: center; gap: 1.5rem;">
                 <button id="send-btn" class="btn btn-primary" style="padding: 0.875rem 3rem; border-radius: var(--radius-pill); font-size: 1rem;">Send Message</button>
+                <a href="/" style="font-size: 0.875rem; color: var(--muted); text-decoration: none; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem;" onmouseover="this.style.color='var(--primary)'; this.style.transform='translateY(-1px)'" onmouseout="this.style.color='var(--muted)'; this.style.transform='translateY(0)'">
+                    New here? Create your own anonymous link 👻
+                </a>
             </div>
         </div>
     `);
@@ -368,7 +371,12 @@ async function renderSendMessage(username: string) {
             render(`
                 <div class="container" style="text-align: center; justify-content: center; min-height: 100vh;">
                     <h1 style="margin-bottom: 1.5rem;">Message delivered to @${sanitizedUsername} 👻</h1>
-                    <button class="btn btn-ghost" onclick="window.location.reload()">Send another</button>
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem;">
+                        <button class="btn btn-ghost" onclick="window.location.reload()">Send another</button>
+                        <a href="/" style="font-size: 0.875rem; color: var(--muted); text-decoration: none; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem;" onmouseover="this.style.color='var(--primary)'; this.style.transform='translateY(-1px)'" onmouseout="this.style.color='var(--muted)'; this.style.transform='translateY(0)'">
+                            New here? Create your own anonymous link 👻
+                        </a>
+                    </div>
                 </div>
             `);
         } catch (e) {
